@@ -1,0 +1,1 @@
+# bargain hunter's algorithm
