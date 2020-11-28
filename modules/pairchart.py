@@ -1,6 +1,11 @@
 # pairchart technique
 import copy
 
+INCOMPATIBLE = 0
+COMPATIBLE = 1
+UNRESOLVED = 2
+MAX_PAIRCHART_LOOPS = 1000
+
 
 class StatePair:
     compatible = None
@@ -34,9 +39,52 @@ def deep_compare_paircharts(pc1, pc2):
     return True
 
 
+def pairchart_resolved(pairchart):
+    for key, val in pairchart.items():
+        for key2, val2 in val.items():
+            if val2.compatible is None:
+                return False
+    return True
+
+
+def iterative_path(pair_chart, dependency_start, dependency_current, dependency_list):
+    new_list = dependency_list.copy()
+    new_list.append(dependency_current)
+    # closed loop back to start indicates compatibility
+    if len(dependency_list) > 0 and dependency_current == dependency_start:
+        return COMPATIBLE
+    # loop back to somewhere other than start indicates no resolution (yet)
+    elif len(dependency_list) > 0 and dependency_current in dependency_list:
+        return UNRESOLVED
+    else:
+        state1, state2 = dependency_current.split('&')
+        if pair_chart[state1][state2].compatible is True or pair_chart[state2][state1].compatible is True:
+            return COMPATIBLE
+        elif pair_chart[state1][state2].compatible is False or pair_chart[state2][state1].compatible is False:
+            return INCOMPATIBLE
+        else:
+            compatible = None
+            for dependency in pair_chart[state1][state2].dependent:
+                path_explore = iterative_path(pair_chart, dependency_start, dependency, new_list)
+                if path_explore == COMPATIBLE:
+                    if compatible is None:
+                        compatible = True
+                elif path_explore == UNRESOLVED:
+                    if compatible is True:
+                        compatible = UNRESOLVED
+                elif path_explore == INCOMPATIBLE:
+                    compatible = False
+            if compatible == COMPATIBLE:
+                return COMPATIBLE
+            elif compatible == INCOMPATIBLE:
+                return INCOMPATIBLE
+            else:
+                return UNRESOLVED
+
+
 def pairchart(state_table, num_states, num_inputs):
     pair_chart = {}
-    print('Determining state compatibilities...')
+    print('\nDetermining state compatibilities...')
 
     st = {}
     for key, val in state_table.items():
@@ -61,14 +109,14 @@ def pairchart(state_table, num_states, num_inputs):
             state_pairs[key2] = sp
         pair_chart[key] = state_pairs
 
-    pair_chart_prev = {}
-    while not deep_compare_paircharts(pair_chart_prev, pair_chart):
-        pair_chart_prev = copy.deepcopy(pair_chart)
+    loops = 0
+    while not pairchart_resolved(pair_chart) and loops < MAX_PAIRCHART_LOOPS:
+        loops += 1
         for key, val in pair_chart.items():
             for key2, val2 in val.items():
                 # compare state names for compatibility
                 if val2.compatible is None and len(val2.dependent) == 0:
-                    dependent = False  # assume compatible until shown otherwise
+                    dependent = False  # assume not dependent until shown otherwise
                     for i in range(num_inputs):
                         idx = i*2
                         ns1 = st[key][idx]
@@ -88,5 +136,22 @@ def pairchart(state_table, num_states, num_inputs):
                     if not dependent:
                         val2.compatible = True
                 # compare dependencies for compatibility
+                elif val2.compatible is None and len(val2.dependent) > 0:
+                    compatible = None
+                    for dependency in val2.dependent:
+                        path_explore = iterative_path(pair_chart, dependency, dependency, [])
+                        if path_explore == COMPATIBLE:
+                            if compatible is None:
+                                compatible = True
+                        elif path_explore == UNRESOLVED:
+                            if compatible is True:
+                                compatible = UNRESOLVED
+                        elif path_explore == INCOMPATIBLE:
+                            compatible = False
+                    if compatible == COMPATIBLE:
+                        val2.compatible = True
+                    elif compatible == INCOMPATIBLE:
+                        val2.compatible = False
 
     print_pairchart(pair_chart)
+    return pair_chart

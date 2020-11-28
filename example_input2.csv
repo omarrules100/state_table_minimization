@@ -1,0 +1,16 @@
+# lines starting with # are ignored when processing,,,,,,
+# first line is header line,,,,,,
+# header line should always be formatted as such:,,,,,,
+#     first column is named STATE,,,,,,
+#     input column columns are in pairs, with first column,,,,,
+#     indicating the next state and the second indicating the output,,,,,,
+STATE,I1_NS,I1_O,I2_NS,I2_O, I3_NS, I3_O
+# each row thereafter corresponds to a state and its response under each input,,,,,,
+1,1,-,2,A,-,B
+2,4,A,3,B,-,-
+3,-,-,3,B,8,-
+4,1,-,2,-,5,-
+5,3,-,7,-,-,-
+6,-,B,-,B,-,A
+7,-,-,6,-,-,A
+8,2,-,4,-,-,B

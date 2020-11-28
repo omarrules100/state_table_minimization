@@ -1,6 +1,7 @@
 import sys
 from modules.import_csv import import_file
 from modules.pairchart import pairchart
+from modules.skill import skill
 
 
 def main():
@@ -19,8 +20,9 @@ def main():
                 num_states = len(state_table) - 1
                 num_inputs = int(len(state_table['STATE'])/2)
                 print(f'Number of states: {num_states}')
-                print(f'Number of inputs: {num_inputs}\n')
-                pairchart(state_table, num_states, num_inputs)
+                print(f'Number of inputs: {num_inputs}')
+                pair_chart = pairchart(state_table, num_states, num_inputs)
+                mccs = skill(pair_chart, num_states, num_inputs)
 
     else:
         print('ERROR state table file must be specified')
