@@ -6,21 +6,29 @@ MAX_PAIRCHART_LOOPS = 1000
 
 
 class StatePair:
+    """ object which shows compatibility for a pair of states and any dependencies """
+
     compatible = None
     dependent = None
+    state1 = None
+    state2 = None
 
-    def __init__(self):
+    def __init__(self, state1, state2):
         self.compatible = None
         self.dependent = []
+        self.state1 = state1
+        self.state2 = state2
 
     def __repr__(self):
-        return f'StatePair()'
+        return f'StatePair({self.state1}, {self.state2})'
 
     def __str__(self):
-        return f'compatible-{self.compatible}, dependencies-{self.dependent}'
+        return f'({self.state1},{self.state2}) compatible-{self.compatible}, dependencies-{self.dependent}'
 
 
 def print_pairchart(pc):
+    """ formatted output string for a pairchart """
+
     for key, val in pc.items():
         print(f'{key}:')
         for key2, val2 in val.items():
@@ -28,6 +36,13 @@ def print_pairchart(pc):
 
 
 def deep_compare_paircharts(pc1, pc2):
+    """
+    deep compare of two paircharts and all their elements
+    :param pc1: dictionary
+    :param pc2: dictionary
+    :return: True if they are equal, False if they differ on any element
+    """
+
     if len(pc1) != len(pc2):
         return False
     for key, val in pc1.items():
@@ -38,6 +53,11 @@ def deep_compare_paircharts(pc1, pc2):
 
 
 def pairchart_resolved(pc):
+    """
+    Checks a pairchart to see if compatibility has been determined for each pair of states
+    :param pc: dictionary
+    :return: True if complete compatibility has been determined, False otherwise
+    """
     for key, val in pc.items():
         for key2, val2 in val.items():
             if val2.compatible is None:
@@ -46,6 +66,15 @@ def pairchart_resolved(pc):
 
 
 def iterative_path(pair_chart, dependency_start, dependency_current, dependency_list):
+    """
+    Function which checks a dependency's subdependencies for pairchart compatibility
+    A closed loop back to initial pair indicates compatibility
+    :param pair_chart: dictionary
+    :param dependency_start: string
+    :param dependency_current: string
+    :param dependency_list: list
+    :return: COMPATIBLE, INCOMPATIBLE, UNRESOLVED
+    """
     new_list = dependency_list.copy()
     new_list.append(dependency_current)
     # closed loop back to start indicates compatibility
@@ -81,6 +110,12 @@ def iterative_path(pair_chart, dependency_start, dependency_current, dependency_
 
 
 def pairchart(state_table, num_inputs):
+    """
+    Function which creates a pairchart dictionary from a given state table
+    :param state_table: dictionary
+    :param num_inputs: int
+    :return: pairchart dictionary
+    """
     pair_chart = {}
     print('\nDetermining state compatibilities...')
 
@@ -95,7 +130,7 @@ def pairchart(state_table, num_inputs):
     for key, val in st.items():
         state_pairs = {}
         for key2, val2 in st.items():
-            sp = StatePair()
+            sp = StatePair(key, key2)
             if key == key2:
                 sp.compatible = True
             else:

@@ -26,7 +26,7 @@ def main():
                 print(f'Number of inputs: {num_inputs}')
 
                 pair_chart = pairchart(state_table, num_inputs)
-                mccs = skill(pair_chart, states_list, num_inputs)
+                mccs = skill(pair_chart, states_list)
 
     else:
         print('ERROR state table file must be specified')

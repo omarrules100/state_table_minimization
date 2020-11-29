@@ -1,7 +1,11 @@
 # skill algorithm
 
 def remove_duplicates(input_list):
-    """ removes duplicates from a list """
+    """
+    removes duplicates from a list
+    :param input_list: list
+    :return: list
+    """
 
     output_list = []
     for element in input_list:
@@ -11,7 +15,11 @@ def remove_duplicates(input_list):
 
 
 def remove_covers(input_list):
-    """ removes sets that are covered by another set in a list """
+    """
+    Removes sets that are covered by another set in a list
+    :param input_list: list
+    :return: list
+    """
 
     output_list = []
     for subset in input_list:
@@ -32,8 +40,13 @@ def remove_covers(input_list):
     return output_list
 
 
-def skill(pc, states_list, num_inputs):
-    """ producs MCCs from a list of states and pair chart """
+def skill(pc, states_list):
+    """
+    Producs a list of MCCs from a pairchart and its states
+    :param pc: pairchart dictionary
+    :param states_list: list
+    :return: list of MCC lists
+    """
 
     print('\nDetermining maximum compatibility classes...')
 
