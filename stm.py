@@ -1,7 +1,9 @@
 import sys
 from modules.import_csv import import_file
-from modules.pairchart import pairchart
-from modules.skill import skill
+from modules.pairchart_technique import pairchart
+from modules.skill_algorithm import skill
+from modules.bargain_hunter import bargain
+from modules.meisels_method import meisel
 
 
 def main():
@@ -27,6 +29,8 @@ def main():
 
                 pair_chart = pairchart(state_table, num_inputs)
                 mccs = skill(pair_chart, states_list)
+                prime_compatibles = bargain(state_table, mccs, num_inputs)
+                minimal_closed_cover = meisel(states_list, prime_compatibles)
 
     else:
         print('ERROR state table file must be specified')

@@ -1,17 +1,5 @@
 # skill algorithm
-
-def remove_duplicates(input_list):
-    """
-    removes duplicates from a list
-    :param input_list: list
-    :return: list
-    """
-
-    output_list = []
-    for element in input_list:
-        if element not in output_list:
-            output_list.append(element)
-    return output_list
+from .common import remove_duplicates
 
 
 def remove_covers(input_list):
@@ -82,5 +70,9 @@ def skill(pc, states_list):
     mccs = []
     for subset in big_l:
         mccs.append(sorted(subset))
+    mccs = sorted(mccs)
+    mccs.reverse()
+    mccs.sort(key=len)
+    mccs.reverse()
     print(mccs)
     return mccs
