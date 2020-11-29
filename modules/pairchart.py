@@ -1,6 +1,4 @@
 # pairchart technique
-import copy
-
 INCOMPATIBLE = 0
 COMPATIBLE = 1
 UNRESOLVED = 2
@@ -39,8 +37,8 @@ def deep_compare_paircharts(pc1, pc2):
     return True
 
 
-def pairchart_resolved(pairchart):
-    for key, val in pairchart.items():
+def pairchart_resolved(pc):
+    for key, val in pc.items():
         for key2, val2 in val.items():
             if val2.compatible is None:
                 return False
@@ -57,7 +55,7 @@ def iterative_path(pair_chart, dependency_start, dependency_current, dependency_
     elif len(dependency_list) > 0 and dependency_current in dependency_list:
         return UNRESOLVED
     else:
-        state1, state2 = dependency_current.split('&')
+        state1, state2 = dependency_current.split(',')
         if pair_chart[state1][state2].compatible is True or pair_chart[state2][state1].compatible is True:
             return COMPATIBLE
         elif pair_chart[state1][state2].compatible is False or pair_chart[state2][state1].compatible is False:
@@ -82,7 +80,7 @@ def iterative_path(pair_chart, dependency_start, dependency_current, dependency_
                 return UNRESOLVED
 
 
-def pairchart(state_table, num_states, num_inputs):
+def pairchart(state_table, num_inputs):
     pair_chart = {}
     print('\nDetermining state compatibilities...')
 
@@ -115,6 +113,7 @@ def pairchart(state_table, num_states, num_inputs):
         for key, val in pair_chart.items():
             for key2, val2 in val.items():
                 # compare state names for compatibility
+                compared_states = sorted([key, key2])
                 if val2.compatible is None and len(val2.dependent) == 0:
                     dependent = False  # assume not dependent until shown otherwise
                     for i in range(num_inputs):
@@ -122,24 +121,24 @@ def pairchart(state_table, num_states, num_inputs):
                         ns1 = st[key][idx]
                         ns2 = st[key2][idx]
                         if ns1 != '-' and ns2 != '-':
-                            compared_states = [key, key2]
                             # if the two states reference different non-blank NS and they are not the two being compared
                             if ns1 != ns2 and (ns1 not in compared_states or ns2 not in compared_states):
                                 dependent = True
-                                state1 = int(ns1)
-                                state2 = int(ns2)
+                                state1 = ns1
+                                state2 = ns2
                                 if state2 < state1:
                                     state_temp = state1
                                     state1 = state2
                                     state2 = state_temp
-                                val2.dependent.append(f'{state1}&{state2}')
+                                val2.dependent.append(f'{state1},{state2}')
                     if not dependent:
                         val2.compatible = True
                 # compare dependencies for compatibility
                 elif val2.compatible is None and len(val2.dependent) > 0:
+                    paired_compared_states = f'{compared_states[0]},{compared_states[1]}'
                     compatible = None
                     for dependency in val2.dependent:
-                        path_explore = iterative_path(pair_chart, dependency, dependency, [])
+                        path_explore = iterative_path(pair_chart, paired_compared_states, dependency, [])
                         if path_explore == COMPATIBLE:
                             if compatible is None:
                                 compatible = True
