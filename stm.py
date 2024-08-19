@@ -4,6 +4,7 @@ from modules.pairchart_technique import pairchart
 from modules.skill_algorithm import skill
 from modules.bargain_hunter import bargain
 from modules.meisels_method import meisel
+import graphviz
 
 
 def main():
@@ -30,8 +31,11 @@ def main():
                 pair_chart = pairchart(state_table, num_inputs)
                 mccs = skill(pair_chart, states_list)
                 prime_compatibles = bargain(state_table, mccs, num_inputs)
+                
                 minimal_closed_cover = meisel(states_list, prime_compatibles)
-
+                print("\nGenerating pdf of Meisel tree and opening it")
+                tree_file = graphviz.Source.from_file('meiseltree.gv')
+                tree_file.view()
     else:
         print('ERROR state table file must be specified')
 
